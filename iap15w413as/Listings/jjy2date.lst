@@ -1,0 +1,276 @@
+C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/19/2019 20:45:17 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE JJY2DATE
+OBJECT MODULE PLACED IN .\Objects\jjy2date.obj
+COMPILER INVOKED BY: C:\Root\Opt\Keil\C51\BIN\C51.EXE jjy2date.c COMPACT OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRI
+                    -NT(.\Listings\jjy2date.lst) OBJECT(.\Objects\jjy2date.obj)
+
+line level    source
+
+   1          
+   2          #include "iap15w413as.h"
+   3          
+   4          sbit JJYPIN = P1^2;
+   5          sbit JJYKHz = P1^1;
+   6          sbit JJYGo = P1^0;
+   7          
+   8          #define JJY60KHZ                        1
+   9          #define JJY40KHZ                        0
+  10          #define JJYENABLE                       0
+  11          #define JJYDISABLE                      1
+  12          
+  13          void jjy_khz(u8 khz)
+  14          {
+  15   1              if (khz == 60) JJYKHz = JJY60KHZ;
+  16   1              if (khz == 40) JJYKHz = JJY40KHZ;
+  17   1      }
+  18          
+  19          void jjy_enable(void)
+  20          {
+  21   1              JJYGo = JJYENABLE;
+  22   1      }
+  23          
+  24          void jjy_disable(void)
+  25          {
+  26   1              JJYGo = JJYDISABLE;
+  27   1      }
+  28          
+  29          static int sync_sec(void)
+  30          {
+  31   1              int err = 0;
+  32   1      
+  33   1          while (JJYPIN != HIGH) {
+  34   2              delay_ms(10);
+  35   2              if (err >= 100) return ERR;   // 1秒内没收到高平脉冲,返回错误.
+  36   2              err++;
+  37   2          }
+  38   1          err = 0;
+  39   1          while (JJYPIN != LOWER) {
+  40   2              delay_ms(10);
+  41   2              if (err >= 100) return ERR;   // 1秒内没收到低平脉冲,返回错误.
+  42   2              err++;
+  43   2          }
+  44   1      
+  45   1          return OK;
+  46   1      }
+  47          
+  48          static int jjy_sec(void)
+  49          {
+  50   1          u16 H = 0;
+  51   1          u16 L = 0;
+  52   1          u16 T;
+  53   1          u8 i = 0;
+  54   1      
+C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/19/2019 20:45:17 PAGE 2   
+
+  55   1          while (i < 100) {
+  56   2              if (JJYstatus == 1) {
+  57   3                  T = JJYPIN;
+  58   3                  if (T) {
+  59   4                                      H++; // led_blue_enable();
+  60   4                              } else {
+  61   4                                      L++; // led_blue_disable();
+  62   4                              }
+  63   3      
+  64   3                  i++;
+  65   3                  JJYstatus = 0;
+  66   3              }
+  67   2          }
+  68   1      #ifdef JJYDEBUG
+                      send_u8_decimal(L);
+                      send_string("0  \t\t");
+              #endif
+  72   1          if (L >= 15 && L <= 25) return 'P';         // 200ms
+  73   1          if (L >= 75 && L <= 85) return '0';         // 800ms
+  74   1          if (L >= 45 && L <= 55) return '1';         // 500ms
+  75   1      
+  76   1          return ERR;
+  77   1      }
+  78          
+  79          static int to_coding(int ch)
+  80          {
+  81   1      #ifdef JJYDEBUG
+                      send_data(ch);
+                  send_string("  \r\n");
+              #endif
+  85   1          if (ch == '0') return 0;
+  86   1          if (ch == '1') return 1;
+  87   1          if (ch == 'P') return 2;
+  88   1      
+  89   1          return ERR;
+  90   1      }
+  91          
+  92          void jjy_config(void)
+  93          {
+  94   1              JJYPIN = LOWER;
+  95   1              PINMxSET(P1M1, 2);
+  96   1              PINMxCLS(P1M0, 2);
+  97   1              
+  98   1              jjy_disable();
+  99   1      }
+ 100          
+ 101          static int checkjjy(u8 *jjycoding)
+ 102          {
+ 103   1          int pa1 = jjycoding[36];
+ 104   1          int pa2 = jjycoding[37];
+ 105   1          int i = 0;
+ 106   1      
+ 107   1          if (jjycoding[1] == 1) i++;
+ 108   1          if (jjycoding[2] == 1) i++;
+ 109   1          if (jjycoding[3] == 1) i++;
+ 110   1          if (jjycoding[5] == 1) i++;
+ 111   1          if (jjycoding[6] == 1) i++;
+ 112   1          if (jjycoding[7] == 1) i++;
+ 113   1          if (jjycoding[8] == 1) i++;
+ 114   1          if (i % 2 != pa2) return ERR;
+ 115   1      
+ 116   1          i = 0;
+C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/19/2019 20:45:17 PAGE 3   
+
+ 117   1          if (jjycoding[12] == 1) i++;
+ 118   1          if (jjycoding[13] == 1) i++;
+ 119   1          if (jjycoding[15] == 1) i++;
+ 120   1          if (jjycoding[16] == 1) i++;
+ 121   1          if (jjycoding[17] == 1) i++;
+ 122   1          if (jjycoding[18] == 1) i++;
+ 123   1          if (i % 2 != pa1) return ERR;
+ 124   1      
+ 125   1          if (!(jjycoding[0] == 2 && jjycoding[9] == 2 && jjycoding[19] == 2 && 
+ 126   1              jjycoding[29] == 2 && jjycoding[39] == 2 && jjycoding[49] == 2 && 
+ 127   1              jjycoding[59] == 2)) return ERR;
+ 128   1      
+ 129   1          if (!(jjycoding[4] == 0 && jjycoding[10] == 0 && jjycoding[11] == 0 && 
+ 130   1              jjycoding[14] == 0 && jjycoding[20] == 0 && jjycoding[21] == 0 && 
+ 131   1              jjycoding[24] == 0 && jjycoding[34] == 0 && jjycoding[35] == 0 && 
+ 132   1              jjycoding[55] == 0 && jjycoding[56] == 0 && jjycoding[57] == 0 && 
+ 133   1              jjycoding[58] == 0)) return ERR;
+ 134   1      
+ 135   1          return OK;
+ 136   1      }
+ 137          
+ 138          static int bcd2hex_(int bcd)
+ 139          {
+ 140   1          return ((bcd >> 8) & 0xf) * 100 + ((bcd >> 4) & 0xf) * 10 + (bcd & 0xf);
+ 141   1      }
+ 142          
+ 143          int jjy2date(Date *jjyd, u8 *jjycoding)
+ 144          {
+ 145   1          int min, hour, days, year, week;
+ 146   1      
+ 147   1          if (checkjjy(jjycoding)) return ERR;
+ 148   1      
+ 149   1          min = ((jjycoding[1] * 2 + jjycoding[2]) * 2 + jjycoding[3]) * 16;
+ 150   1          min += ((jjycoding[5] * 2 + jjycoding[6]) * 2 + jjycoding[7]) * 2 + jjycoding[8];
+ 151   1          jjyd->min = bcd2hex_(min);
+ 152   1      
+ 153   1          hour = (jjycoding[12] * 2 + jjycoding[13]) * 16;
+ 154   1          hour += ((jjycoding[15] * 2 + jjycoding[16]) * 2 + jjycoding[17]) * 2 + jjycoding[18];
+ 155   1          jjyd->hour = bcd2hex_(hour);
+ 156   1      
+ 157   1          year = (((jjycoding[41] * 2 + jjycoding[42]) * 2 + jjycoding[43]) * 2 + jjycoding[44]) * 16;
+ 158   1          year += ((jjycoding[45] * 2 + jjycoding[46]) * 2 + jjycoding[47]) * 2 + jjycoding[48];
+ 159   1          jjyd->year = bcd2hex_(year) + 2000;
+ 160   1      
+ 161   1          days = (jjycoding[22] * 2 + jjycoding[23]) * 256;
+ 162   1          days += (((jjycoding[25] * 2 + jjycoding[26]) * 2 + jjycoding[27]) * 2 + jjycoding[28]) * 16;
+ 163   1          days += ((jjycoding[30] * 2 + jjycoding[31]) * 2 + jjycoding[32]) * 2 + jjycoding[33];
+ 164   1          day2date(jjyd, bcd2hex_(days));
+ 165   1      
+ 166   1          week = (jjycoding[51] * 2 + jjycoding[52]) * 2 + jjycoding[52];
+ 167   1          jjyd->week = bcd2hex_(week);
+ 168   1      
+ 169   1          jjyd->sec = 0;
+ 170   1          // jjyd->timestamp = 0;
+ 171   1          // jjyd->hour -= 1;             // UTC+8 (JJY UTC+9)
+ 172   1          to_sec(jjyd);
+ 173   1          jjyd->timestamp += 60;          // 一帧结束时已经过去60秒
+ 174   1          jjyd->timestamp += 1;           // 在GetJJY中,以遇到两个定位符为一帧的结束,此时已�
+             -�是后续帧的第一秒了.
+ 175   1          jjyd->timestamp -= (60 * 60);   // UTC+8 (JJY UTC+9)
+ 176   1          to_date(jjyd);
+ 177   1          to_week(jjyd);
+C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/19/2019 20:45:17 PAGE 4   
+
+ 178   1      
+ 179   1          return OK;
+ 180   1      }
+ 181          #ifdef JJYDEBUG2
+              void printdate(Date *jjyd)
+              {
+                  const char *weekname[] = {"Monday", "Tuesday", "Wednesday", "Thursday",
+                                                  "Friday", "Saturday", "Sunday", NULL};
+              
+                  printf("%04d/%02d/%02d \r\n", jjyd->year, jjyd->mon, jjyd->day);
+                  printf("%02d:%02d:%02d \r\n", jjyd->hour, jjyd->min, jjyd->sec);
+                  printf("%s\r\n", weekname[jjyd->week]);
+              }
+              #endif
+ 192          
+ 193          int GetJJY(Date *jjyd)
+ 194          {
+ 195   1          int status;
+ 196   1              int i = 0;
+ 197   1          int j = 0;
+ 198   1          int k = 0;
+ 199   1          int coding = 0, prev_coding = 0;
+ 200   1              u8 jjycoding[JJYSIZE];
+ 201   1              
+ 202   1          while (1) {
+ 203   2                      status = sync_sec();
+ 204   2      #ifdef JJYDEBUG
+                      if (status == OK) send_string("Ok. \r\n");
+                              else send_string("Err. \r\n");
+              #else
+ 208   2      #endif
+ 209   2                      if (status != ERR) break;
+ 210   2                      if (i >= 5) return ERR;
+ 211   2                      i++;
+ 212   2              }
+ 213   1      
+ 214   1          while (1) {
+ 215   2              if (k >= JJYSIZE) return ERR;
+ 216   2              coding = to_coding(jjy_sec());
+ 217   2              if (coding == ERR) return ERR;
+ 218   2              if (coding == 2)
+ 219   2                  if (prev_coding == 2)
+ 220   2                      break;
+ 221   2              k++;
+ 222   2              prev_coding = coding;
+ 223   2          }
+ 224   1      #ifdef JJYDEBUG
+                  send_string("Go. \r\n");
+              #endif
+ 227   1          jjycoding[0] = 2;
+ 228   1          j = 1;
+ 229   1          while (1) {
+ 230   2              coding = to_coding(jjy_sec());
+ 231   2              if (coding == ERR) return ERR;
+ 232   2              if (coding == 2)
+ 233   2                  if (jjycoding[j-1] == 2)
+ 234   2                          break;
+ 235   2              if (!(j < JJYSIZE)) return ERR;
+ 236   2              jjycoding[j] = coding;
+ 237   2              j++;
+ 238   2          }
+ 239   1      
+C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/19/2019 20:45:17 PAGE 5   
+
+ 240   1          if (jjy2date(jjyd, jjycoding)) return ERR;
+ 241   1          return OK;
+ 242   1      }
+ 243          
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2247    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----     100
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

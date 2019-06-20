@@ -1,0 +1,9 @@
+".\Objects\main.obj",
+".\Objects\iap15w4k58s4_config.obj",
+".\Objects\uart.obj",
+".\Objects\timer.obj",
+".\Objects\update_time.obj",
+".\Objects\ds1302.obj",
+".\Objects\lcd1602.obj" 
+TO ".\Objects\iap15w4k58s4" 
+PRINT(".\Listings\iap15w4k58s4.m51") RAMSIZE(256) 

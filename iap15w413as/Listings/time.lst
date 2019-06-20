@@ -1,0 +1,145 @@
+C51 COMPILER V9.60.0.0   TIME                                                              06/19/2019 20:45:17 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE TIME
+OBJECT MODULE PLACED IN .\Objects\time.obj
+COMPILER INVOKED BY: C:\Root\Opt\Keil\C51\BIN\C51.EXE time.c COMPACT OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.
+                    -\Listings\time.lst) OBJECT(.\Objects\time.obj)
+
+line level    source
+
+   1          
+   2          #include "iap15w413as.h"
+   3          
+   4          int leap_year(int year)
+   5          {
+   6   1          if ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) return TRUE;
+   7   1          else return FALSE;
+   8   1      }
+   9          
+  10          int day2date(Date *jjyd, int days)
+  11          {
+  12   1          int days_per_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  13   1          int day = 0, mon = 1;
+  14   1          int i = 0;
+  15   1      #ifdef JJYDEBUG2
+              printf("year = %04d days = %d\n", jjyd->year, days);
+              #endif
+  18   1          if (leap_year(jjyd->year)) days_per_month[1]++;
+  19   1          while (1) {
+  20   2              days -= days_per_month[i];
+  21   2              if (days < 0) {
+  22   3                  days += days_per_month[i];
+  23   3                  day = days;
+  24   3                  mon = i + 1;
+  25   3                  break;
+  26   3              }
+  27   2              i++;
+  28   2          }
+  29   1      
+  30   1          if (i > 11) return ERR;
+  31   1      
+  32   1          jjyd->day = day;
+  33   1          jjyd->mon = mon;
+  34   1      
+  35   1          return OK;
+  36   1      }
+  37          
+  38          void to_sec(Date *jjyd)
+  39          {
+  40   1          static const int days[] = {0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334};
+  41   1          int year = jjyd->year;
+  42   1          jjyd->timestamp = 0;
+  43   1      
+  44   1          jjyd->year -= 1900;
+  45   1      #ifdef JJYDEBUG2
+              printf("year = %04d \n", jjyd->year);
+              #endif
+  48   1          jjyd->year -= (jjyd->year < 70 ? -30 : 70);
+  49   1      #ifdef JJYDEBUG2
+              printf("year = %04d \n", jjyd->year);
+              #endif
+  52   1          jjyd->timestamp += (jjyd->year * YEAR);
+  53   1          jjyd->timestamp += (((jjyd->year + 1) / 4) * DAY);
+  54   1                  
+C51 COMPILER V9.60.0.0   TIME                                                              06/19/2019 20:45:17 PAGE 2   
+
+  55   1          jjyd->timestamp = jjyd->timestamp + days[jjyd->mon - 1] * DAY;
+  56   1          if (leap_year(jjyd->year + 1970) && jjyd->mon > 2) jjyd->timestamp += DAY;
+  57   1                  
+  58   1          jjyd->timestamp += ((jjyd->day - 1) * DAY);
+  59   1          jjyd->timestamp += jjyd->hour * HOUR;
+  60   1          jjyd->timestamp += jjyd->min * 60;
+  61   1          jjyd->timestamp += jjyd->sec;
+  62   1      
+  63   1          jjyd->year = year;
+  64   1      }
+  65          
+  66          void to_date(Date *jjyd)
+  67          {
+  68   1          int days_per_month[] = {31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+  69   1          long i, leap;
+  70   1          long tstamp = jjyd->timestamp;
+  71   1                  
+  72   1          for (i = 1970; ; i++) {
+  73   2              if (leap_year(i)) {leap = DAY; } 
+  74   2              else { leap = 0; }
+  75   2              if ((jjyd->timestamp - YEAR - leap) < 0) { break; }
+  76   2              jjyd->timestamp -= (YEAR + leap);
+  77   2          }
+  78   1          jjyd->year = i;
+  79   1                  
+  80   1          if (leap_year(jjyd->year)) {days_per_month[1]++;}
+  81   1          i = 0;
+  82   1          while (jjyd->timestamp >= (days_per_month[i] * DAY)) {jjyd->timestamp -= (days_per_month[i++] * DAY);}
+  83   1          jjyd->mon = i + 1;
+  84   1                  
+  85   1          i = 1;
+  86   1          while (jjyd->timestamp >= DAY) { jjyd->timestamp -= DAY; i++; }
+  87   1          jjyd->day = i;
+  88   1                  
+  89   1          i = 0;
+  90   1          while (jjyd->timestamp >= HOUR) { jjyd->timestamp -= HOUR; i++; }
+  91   1          jjyd->hour = i;
+  92   1                  
+  93   1          i = 0;
+  94   1          while (jjyd->timestamp >= 60L) { jjyd->timestamp -= 60L; i++; }
+  95   1          jjyd->min = i;
+  96   1                  
+  97   1          jjyd->sec = jjyd->timestamp;
+  98   1      
+  99   1          jjyd->timestamp = tstamp;
+ 100   1      }
+ 101          
+ 102          void to_week(Date *jjyd)
+ 103          {
+ 104   1          int yyyy, mm, dd, week;
+ 105   1      
+ 106   1          yyyy = jjyd->year;
+ 107   1          mm = jjyd->mon;
+ 108   1          dd = jjyd->day;
+ 109   1      
+ 110   1          if (mm == 1 || mm == 2) {
+ 111   2              yyyy -= 1;
+ 112   2              mm += 12;
+ 113   2          }
+ 114   1          week = (dd + 2 * mm + 3 * (mm + 1) / 5 + yyyy + yyyy / 4 - yyyy / 100 + yyyy / 400) % 7;
+ 115   1      
+ 116   1          jjyd->week = week;
+C51 COMPILER V9.60.0.0   TIME                                                              06/19/2019 20:45:17 PAGE 3   
+
+ 117   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =   2462    ----
+   CONSTANT SIZE    =     48    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =     24      86
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

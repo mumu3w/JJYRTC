@@ -1,0 +1,225 @@
+C51 COMPILER V9.60.0.0   DS1302                                                            06/19/2019 20:06:12 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE DS1302
+OBJECT MODULE PLACED IN .\Objects\ds1302.obj
+COMPILER INVOKED BY: C:\Root\Opt\Keil\C51\BIN\C51.EXE ds1302.c COMPACT OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT
+                    -(.\Listings\ds1302.lst) OBJECT(.\Objects\ds1302.obj)
+
+line level    source
+
+   1          
+   2          #include "iap15w4k58s4.h"
+   3          
+   4          #define R_YEAR  0x8d
+   5          #define W_YEAR  0x8c
+   6          
+   7          #define R_MON   0x89
+   8          #define W_MON   0x88
+   9          
+  10          #define R_DAY   0x87
+  11          #define W_DAY   0x86
+  12          
+  13          #define R_HOUR  0x85
+  14          #define W_HOUR  0x84
+  15          
+  16          #define R_MIN   0x83
+  17          #define W_MIN   0x82
+  18          
+  19          #define R_SEC   0x81
+  20          #define W_SEC   0x80
+  21          
+  22          #define R_WEEK  0x8b
+  23          #define W_WEEK  0x8a
+  24          
+  25          sbit DSIO = DS1302_DSIO;
+  26          sbit RST = DS1302_RST;
+  27          sbit SCLK = DS1302_SCLK;
+  28          
+  29          static void ds1302_write(u8 addr, u8 v);
+  30          static u8 ds1302_read(u8 addr);
+  31          
+  32          void ds1302_init(void)
+  33          {
+  34   1              PINMxCLS(P1M1, 3);
+  35   1              PINMxCLS(P1M0, 3);
+  36   1              PINMxCLS(P1M1, 4);
+  37   1              PINMxCLS(P1M0, 4);
+  38   1              PINMxCLS(P1M1, 5);
+  39   1              PINMxCLS(P1M0, 5);
+  40   1              
+  41   1              ds1302_write(0x8E,0X00);        //关闭写保护功能
+  42   1              // ds1302_write(0x8E,0x80);     //打开写保护功能
+  43   1      }
+  44          
+  45          static void ds1302_write(u8 addr, u8 v)
+  46          {
+  47   1              u8 i;
+  48   1              
+  49   1              RST = 0;
+  50   1              _nop_();
+  51   1              SCLK = 0;
+  52   1              _nop_();
+  53   1              RST = 1;
+  54   1              _nop_();
+C51 COMPILER V9.60.0.0   DS1302                                                            06/19/2019 20:06:12 PAGE 2   
+
+  55   1              
+  56   1              for (i = 0; i < 8; i++) {
+  57   2                      DSIO = addr & 0x1;
+  58   2                      addr >>= 1;
+  59   2                      SCLK = 1;
+  60   2                      _nop_();
+  61   2                      SCLK = 0;
+  62   2                      _nop_();
+  63   2              }
+  64   1              
+  65   1              for (i = 0; i < 8; i++) {
+  66   2                      DSIO = v & 0x1;
+  67   2                      v >>= 1;
+  68   2                      SCLK = 1;
+  69   2                      _nop_();
+  70   2                      SCLK = 0;
+  71   2                      _nop_();
+  72   2              }
+  73   1              
+  74   1              RST = 0;
+  75   1              _nop_();
+  76   1      }
+  77          
+  78          static u8 ds1302_read(u8 addr)
+  79          {
+  80   1              u8 i, v, v1;
+  81   1              
+  82   1              RST = 0;
+  83   1              _nop_();
+  84   1              SCLK = 0;       //先将SCLK置低电平。
+  85   1              _nop_();
+  86   1              RST = 1;        //然后将RST(CE)置高电平。
+  87   1              _nop_();
+  88   1      
+  89   1              for(i = 0; i < 8; i++) {        //开始传送八位地址命令
+  90   2                      DSIO = addr & 0x01;             //数据从低位开始传送
+  91   2                      addr >>= 1;
+  92   2                      SCLK = 1;                               //数据在上升沿时，DS1302读取数据
+  93   2                      _nop_();
+  94   2                      SCLK = 0;                               //DS1302下降沿时，放置数据
+  95   2                      _nop_();
+  96   2              }
+  97   1              
+  98   1              _nop_();
+  99   1              for(i = 0; i < 8; i++) {        //读取8位数据
+ 100   2                      v1 = DSIO;                              //从最低位开始接收
+ 101   2                      v = (v >> 1) | (v1 << 7);
+ 102   2                      SCLK = 1;
+ 103   2                      _nop_();
+ 104   2                      SCLK = 0;                               //DS1302下降沿时，放置数据
+ 105   2                      _nop_();
+ 106   2              }
+ 107   1      
+ 108   1              RST = 0;
+ 109   1              _nop_();                                        //以下为DS1302复位的稳定时间,必须的。
+ 110   1              SCLK = 1;
+ 111   1              _nop_();
+ 112   1              DSIO = 0;
+ 113   1              _nop_();
+ 114   1              DSIO = 1;
+ 115   1              _nop_();
+ 116   1              return v;
+C51 COMPILER V9.60.0.0   DS1302                                                            06/19/2019 20:06:12 PAGE 3   
+
+ 117   1      }
+ 118          
+ 119          u8 hex2bcd(u8 hex)
+ 120          {
+ 121   1              return (hex / 10 << 4) + (hex % 10);
+ 122   1      }
+ 123          
+ 124          u8 bcd2hex(u8 bcd)
+ 125          {
+ 126   1              return (bcd >> 4) * 10 + (bcd & 0xf);
+ 127   1      }
+ 128          
+ 129          void ds1302_get_time(
+ 130                  u16 *y, u16 *mo, u16 *d, 
+ 131                  u16 *h, u16 *mi, u16 *s,
+ 132                  u16 *w)
+ 133          {
+ 134   1              *y = ds1302_read(R_YEAR);
+ 135   1              *y = bcd2hex(*y);
+ 136   1              
+ 137   1              *mo = ds1302_read(R_MON);
+ 138   1              *mo = bcd2hex(*mo);
+ 139   1              
+ 140   1              *d = ds1302_read(R_DAY);
+ 141   1              *d = bcd2hex(*d);
+ 142   1              
+ 143   1              *h = ds1302_read(R_HOUR);
+ 144   1              *h = bcd2hex(*h);
+ 145   1              
+ 146   1              *mi = ds1302_read(R_MIN);
+ 147   1              *mi = bcd2hex(*mi);
+ 148   1              
+ 149   1              *s = ds1302_read(R_SEC);
+ 150   1              *s = bcd2hex(*s);
+ 151   1              
+ 152   1              *w = ds1302_read(R_WEEK);
+ 153   1              *w = bcd2hex(*w);
+ 154   1      }
+ 155          
+ 156          void ds1302_set_time(
+ 157                  u8 y, u8 mo, u8 d, 
+ 158                  u8 h, u8 mi, u8 s,
+ 159                  u8 w)
+ 160          {
+ 161   1              y = hex2bcd(y);
+ 162   1              ds1302_write(W_YEAR, y);
+ 163   1              
+ 164   1              mo = hex2bcd(mo);
+ 165   1              ds1302_write(W_MON, mo);
+ 166   1              
+ 167   1              d = hex2bcd(d);
+ 168   1              ds1302_write(W_DAY, d);
+ 169   1              
+ 170   1              h = hex2bcd(h);
+ 171   1              ds1302_write(W_HOUR, h);
+ 172   1              
+ 173   1              mi = hex2bcd(mi);
+ 174   1              ds1302_write(W_MIN, mi);
+ 175   1              
+ 176   1              s = hex2bcd(s);
+ 177   1              ds1302_write(W_SEC, s);
+ 178   1              
+C51 COMPILER V9.60.0.0   DS1302                                                            06/19/2019 20:06:12 PAGE 4   
+
+ 179   1              w = hex2bcd(w);
+ 180   1              ds1302_write(W_WEEK, w);
+ 181   1      }
+ 182          
+ 183          void send_time(void)
+ 184          {
+ 185   1              u16 year = 0, mon = 0, day = 0, hour = 0, min = 0, sec = 0, week = 0;
+ 186   1              
+ 187   1              ds1302_get_time(&year, &mon, &day, &hour, &min, &sec, &week);
+ 188   1              send_data(hex2bcd(year));
+ 189   1              send_data(hex2bcd(mon));
+ 190   1              send_data(hex2bcd(day));
+ 191   1              send_data(hex2bcd(hour));
+ 192   1              send_data(hex2bcd(min));
+ 193   1              send_data(hex2bcd(sec));
+ 194   1              send_data(hex2bcd(week));
+ 195   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    777    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----      42
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

@@ -1,0 +1,105 @@
+C51 COMPILER V9.60.0.0   UPDATE_TIME                                                       06/19/2019 20:06:12 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE UPDATE_TIME
+OBJECT MODULE PLACED IN .\Objects\update_time.obj
+COMPILER INVOKED BY: C:\Root\Opt\Keil\C51\BIN\C51.EXE update_time.c COMPACT OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND 
+                    -PRINT(.\Listings\update_time.lst) OBJECT(.\Objects\update_time.obj)
+
+line level    source
+
+   1          
+   2          #include "iap15w4k58s4.h"
+   3          
+   4          void print_time(u8 year, u8 mon, u8 day, u8 hour, 
+   5                                          u8 min, u8 sec, u8 week)
+   6          {
+   7   1              send_u8_decimal(year);
+   8   1              send_string("/");
+   9   1              send_u8_decimal(mon);
+  10   1              send_string("/");
+  11   1              send_u8_decimal(day);
+  12   1              send_string("/");
+  13   1              
+  14   1              send_u8_decimal(hour);
+  15   1              send_string("/");
+  16   1              send_u8_decimal(min);
+  17   1              send_string("/");
+  18   1              send_u8_decimal(sec);
+  19   1              send_string("/");
+  20   1              
+  21   1              send_u8_decimal(week);
+  22   1              send_string(" \r\n");
+  23   1      }
+  24          
+  25          #define TIME_START_BIT  3       
+  26          int ascii2hex(u8 *mess, u8 *year, u8 *mon, u8 *day, 
+  27                                          u8 *hour, u8 *min, u8 *sec, u8 *week)
+  28          {
+  29   1              u8 i = 0;
+  30   1              u8 v[7];
+  31   1              
+  32   1              if (mess[0] == 'S' &&
+  33   1                      mess[1] == '.' &&
+  34   1                      mess[31] == '\r' &&
+  35   1                      mess[32] == '\n') {
+  36   2                      
+  37   2                      send_string(mess);
+  38   2                      for (i = 0; i < 7; i++) {
+  39   3                              v[i] = (mess[TIME_START_BIT + i * 4 + 1] - '0') * 10;
+  40   3                              //send_u8_decimal(v[i]);
+  41   3                              //send_string(" \r\n");
+  42   3                              v[i] = v[i] + (mess[TIME_START_BIT + i * 4 + 2] - '0');
+  43   3                              //send_u8_decimal(v[i]);
+  44   3                              //send_string(" \r\n");
+  45   3                      }
+  46   2                      *year = v[0];
+  47   2                      *mon = v[1];
+  48   2                      *day = v[2];
+  49   2                      *hour = v[3];
+  50   2                      *min = v[4];
+  51   2                      *sec = v[5];
+  52   2                      *week = v[6];
+  53   2                      return OK;      
+  54   2              } else {
+C51 COMPILER V9.60.0.0   UPDATE_TIME                                                       06/19/2019 20:06:12 PAGE 2   
+
+  55   2                      return ERR;
+  56   2              }
+  57   1      }
+  58          
+  59          int update_time(void)
+  60          {
+  61   1              int return_code = ERR;
+  62   1              u8 year, mon, day;
+  63   1              u8 hour, min, sec;
+  64   1              u8 week;
+  65   1              
+  66   1              if (JjyTimeMessFlag == 1) {
+  67   2                      JjyTimeMessFlag = 0;
+  68   2                      return_code = ascii2hex(jjy_time_mess, &year, &mon, &day,
+  69   2                                      &hour, &min, &sec, &week);
+  70   2              }
+  71   1              
+  72   1              if (return_code == OK) {
+  73   2                      print_time(year, mon, day, hour, min, sec, week);
+  74   2                      ds1302_set_time(year, mon, day, hour, min, sec, week + 1);
+  75   2                      return OK;
+  76   2              }
+  77   1              
+  78   1              return ERR;
+  79   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    609    ----
+   CONSTANT SIZE    =      6    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----      45
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
