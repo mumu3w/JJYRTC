@@ -1,0 +1,83 @@
+C51 COMPILER V9.60.0.0   UPDATE                                                            06/26/2019 17:13:58 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE UPDATE
+OBJECT MODULE PLACED IN .\Objects\update.obj
+COMPILER INVOKED BY: C:\Root\Opt\Keil\C51\BIN\C51.EXE update.c COMPACT OPTIMIZE(8,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT
+                    -(.\Listings\update.lst) OBJECT(.\Objects\update.obj)
+
+line level    source
+
+   1          
+   2          #include "iap15w413as.h"
+   3          
+   4          #define TIME_START_BIT  3       
+   5          int ascii2hex(u8 *mess, u8 *year, u8 *mon, u8 *day, 
+   6                                          u8 *hour, u8 *min, u8 *sec, u8 *week)
+   7          {
+   8   1              u8 i = 0;
+   9   1              u8 v[7];
+  10   1              
+  11   1              if (mess[0] == 'S' &&
+  12   1                      mess[1] == '.' &&
+  13   1                      mess[31] == '\r' &&
+  14   1                      mess[32] == '\n') {
+  15   2                      
+  16   2                      send_string(mess);
+  17   2                      for (i = 0; i < 7; i++) {
+  18   3                              v[i] = (mess[TIME_START_BIT + i * 4 + 1] - '0') * 10;
+  19   3                              //send_u8_decimal(v[i]);
+  20   3                              //send_string(" \r\n");
+  21   3                              v[i] = v[i] + (mess[TIME_START_BIT + i * 4 + 2] - '0');
+  22   3                              //send_u8_decimal(v[i]);
+  23   3                              //send_string(" \r\n");
+  24   3                      }
+  25   2                      *year = v[0];
+  26   2                      *mon = v[1];
+  27   2                      *day = v[2];
+  28   2                      *hour = v[3];
+  29   2                      *min = v[4];
+  30   2                      *sec = v[5];
+  31   2                      *week = v[6];
+  32   2                      return OK;      
+  33   2              } else {
+  34   2                      return ERR;
+  35   2              }
+  36   1      }
+  37          
+  38          int update_time(void)
+  39          {
+  40   1              int return_code = ERR;
+  41   1              u8 year, mon, day;
+  42   1              u8 hour, min, sec;
+  43   1              u8 week;
+  44   1              
+  45   1              if (JjyTimeMessFlag == 1) {
+  46   2                      JjyTimeMessFlag = 0;
+  47   2                      return_code = ascii2hex(jjy_time_mess, &year, &mon, &day,
+  48   2                                      &hour, &min, &sec, &week);
+  49   2              }
+  50   1              
+  51   1              if (return_code == OK) {
+  52   2                      ds3231_set_date(year, mon, day, hour, min, sec, week + 1);
+  53   2                      return OK;
+  54   2              }
+C51 COMPILER V9.60.0.0   UPDATE                                                            06/26/2019 17:13:58 PAGE 2   
+
+  55   1              
+  56   1              return ERR;
+  57   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    458    ----
+   CONSTANT SIZE    =   ----    ----
+   XDATA SIZE       =   ----    ----
+   PDATA SIZE       =   ----      38
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)
