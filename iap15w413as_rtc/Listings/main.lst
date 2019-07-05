@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   MAIN                                                              06/26/2019 17:13:58 PAGE 1   
+C51 COMPILER V9.60.0.0   MAIN                                                              06/27/2019 18:02:46 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
@@ -35,7 +35,7 @@ line level    source
   25          {
   26   1              //u8 i = 0;
   27   1              u8 y = 19, m = 6, d = 25;
-  28   1              u8 h = 20, mi= 6, s = 00;
+  28   1              u8 h = 20, mi= 6, s = 00, ss;
   29   1              u8 w = 2;
   30   1              Date date;
   31   1              u8 oldsec = 60;
@@ -60,27 +60,37 @@ line level    source
   50   3                              date.week = w;
   51   3                              print_time(&date);
   52   3                              
-  53   3                              oldsec = s;
-  54   3                      }
-C51 COMPILER V9.60.0.0   MAIN                                                              06/26/2019 17:13:58 PAGE 2   
+  53   3                              ds1302_get_date(&y, &m, &d, &h, &mi, &ss, &w);
+  54   3                              date.year = y;
+C51 COMPILER V9.60.0.0   MAIN                                                              06/27/2019 18:02:46 PAGE 2   
 
-  55   2                      
-  56   2                      if (update_flag) {
-  57   3                              if (update_time() == OK)
-  58   3                                      update_flag = 0;
-  59   3                      }
-  60   2                      //send_u8_decimal(i);
-  61   2                      //send_string(" \r\n");
-  62   2                      //i++;
-  63   2              }
-  64   1      }
+  55   3                              date.mon = m;
+  56   3                              date.day = d;
+  57   3                              date.hour = h;
+  58   3                              date.min = mi;
+  59   3                              date.sec = ss;
+  60   3                              date.week = w;
+  61   3                              print_time(&date);
+  62   3                              
+  63   3                              oldsec = s;
+  64   3                      }
+  65   2                      
+  66   2                      if (update_flag) {
+  67   3                              if (update_time() == OK)
+  68   3                                      update_flag = 0;
+  69   3                      }
+  70   2                      //send_u8_decimal(i);
+  71   2                      //send_string(" \r\n");
+  72   2                      //i++;
+  73   2              }
+  74   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    470    ----
+   CODE SIZE        =    618    ----
    CONSTANT SIZE    =     36    ----
    XDATA SIZE       =   ----    ----
-   PDATA SIZE       =   ----      30
+   PDATA SIZE       =   ----      31
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
    BIT SIZE         =   ----    ----

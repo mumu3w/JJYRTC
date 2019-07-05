@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   UPDATE                                                            06/26/2019 17:13:58 PAGE 1   
+C51 COMPILER V9.60.0.0   UPDATE                                                            06/27/2019 18:02:46 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE UPDATE
@@ -60,17 +60,18 @@ line level    source
   50   1              
   51   1              if (return_code == OK) {
   52   2                      ds3231_set_date(year, mon, day, hour, min, sec, week + 1);
-  53   2                      return OK;
-  54   2              }
-C51 COMPILER V9.60.0.0   UPDATE                                                            06/26/2019 17:13:58 PAGE 2   
+  53   2                      ds1302_set_date(year, mon, day, hour, min, sec, week + 1);
+  54   2                      return OK;
+C51 COMPILER V9.60.0.0   UPDATE                                                            06/27/2019 18:02:46 PAGE 2   
 
-  55   1              
-  56   1              return ERR;
-  57   1      }
+  55   2              }
+  56   1              
+  57   1              return ERR;
+  58   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =    458    ----
+   CODE SIZE        =    495    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----      38

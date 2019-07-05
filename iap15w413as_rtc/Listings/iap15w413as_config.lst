@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   IAP15W413AS_CONFIG                                                06/26/2019 17:13:58 PAGE 1   
+C51 COMPILER V9.60.0.0   IAP15W413AS_CONFIG                                                06/27/2019 18:02:46 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE IAP15W413AS_CONFIG
@@ -51,19 +51,20 @@ line level    source
   41   1              ISRENABLE();
   42   1              
   43   1              ds3231_init();
-  44   1      }
+  44   1              ds1302_init();
+  45   1      }
 
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
-   CODE SIZE        =     52    ----
+   CODE SIZE        =     55    ----
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----
    PDATA SIZE       =   ----    ----
    DATA SIZE        =   ----    ----
    IDATA SIZE       =   ----    ----
-   BIT SIZE         =   ----    ----
-C51 COMPILER V9.60.0.0   IAP15W413AS_CONFIG                                                06/26/2019 17:13:58 PAGE 2   
+C51 COMPILER V9.60.0.0   IAP15W413AS_CONFIG                                                06/27/2019 18:02:46 PAGE 2   
 
+   BIT SIZE         =   ----    ----
 END OF MODULE INFORMATION.
 
 

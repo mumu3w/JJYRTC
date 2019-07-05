@@ -1,0 +1,10 @@
+".\Objects\iap15w413as_config.obj",
+".\Objects\main.obj",
+".\Objects\timer.obj",
+".\Objects\uart.obj",
+".\Objects\led.obj",
+".\Objects\bpc.obj",
+".\Objects\time.obj",
+".\Objects\ds3231.obj" 
+TO ".\Objects\iap15w413as" 
+PRINT(".\Listings\iap15w413as.m51") RAMSIZE(256) 

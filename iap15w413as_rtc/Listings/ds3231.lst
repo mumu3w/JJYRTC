@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   DS3231                                                            06/26/2019 17:13:58 PAGE 1   
+C51 COMPILER V9.60.0.0   DS3231                                                            06/27/2019 18:02:46 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE DS3231
@@ -62,7 +62,7 @@ line level    source
   52   2                      Byte <<= 0x1;
   53   2                      i2c_delay();
   54   2              }
-C51 COMPILER V9.60.0.0   DS3231                                                            06/26/2019 17:13:58 PAGE 2   
+C51 COMPILER V9.60.0.0   DS3231                                                            06/27/2019 18:02:46 PAGE 2   
 
   55   1      }
   56          
@@ -126,7 +126,7 @@ line level    source
  114          static ds3231_read_byte(u8 addr)
  115          {
  116   1              u8 v;
-C51 COMPILER V9.60.0.0   DS3231                                                            06/26/2019 17:13:58 PAGE 3   
+C51 COMPILER V9.60.0.0   DS3231                                                            06/27/2019 18:02:46 PAGE 3   
 
  117   1      
  118   1              i2c_start();
@@ -190,7 +190,7 @@ line level    source
 
 MODULE INFORMATION:   STATIC OVERLAYABLE
    CODE SIZE        =    518    ----
-C51 COMPILER V9.60.0.0   DS3231                                                            06/26/2019 17:13:58 PAGE 4   
+C51 COMPILER V9.60.0.0   DS3231                                                            06/27/2019 18:02:46 PAGE 4   
 
    CONSTANT SIZE    =   ----    ----
    XDATA SIZE       =   ----    ----

@@ -25,7 +25,7 @@ void main(void)
 {
 	//u8 i = 0;
 	u8 y = 19, m = 6, d = 25;
-	u8 h = 20, mi= 6, s = 00;
+	u8 h = 20, mi= 6, s = 00, ss;
 	u8 w = 2;
 	Date date;
 	u8 oldsec = 60;
@@ -47,6 +47,16 @@ void main(void)
 			date.hour = h;
 			date.min = mi;
 			date.sec = s;
+			date.week = w;
+			print_time(&date);
+			
+			ds1302_get_date(&y, &m, &d, &h, &mi, &ss, &w);
+			date.year = y;
+			date.mon = m;
+			date.day = d;
+			date.hour = h;
+			date.min = mi;
+			date.sec = ss;
 			date.week = w;
 			print_time(&date);
 			

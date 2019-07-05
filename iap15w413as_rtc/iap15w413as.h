@@ -94,4 +94,10 @@ void ds3231_get_date(u8 *y, u8 *m, u8 *d, u8 *h, u8 *mi, u8 *s, u8 *w);
 int update_time(void);
 //
 
+// ds1302.h
+void ds1302_init(void);
+void ds1302_get_date(u8 *y, u8 *mo, u8 *d, u8 *h, u8 *mi, u8 *s, u8 *w);
+void ds1302_set_date(u8 y, u8 mo, u8 d, u8 h, u8 mi, u8 s, u8 w);
+// 
+
 #endif

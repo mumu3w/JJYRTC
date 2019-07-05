@@ -1,0 +1,104 @@
+C51 COMPILER V9.60.0.0   MAIN                                                              07/05/2019 17:37:13 PAGE 1   
+
+
+C51 COMPILER V9.60.0.0, COMPILATION OF MODULE MAIN
+OBJECT MODULE PLACED IN .\Objects\main.obj
+COMPILER INVOKED BY: C:\Root\Opt\Keil\C51\BIN\C51.EXE main.c LARGE OPTIMIZE(7,SPEED) BROWSE DEBUG OBJECTEXTEND PRINT(.\L
+                    -istings\main.lst) OBJECT(.\Objects\main.obj)
+
+line level    source
+
+   1          
+   2          #include "iap15w413as.h"
+   3          
+   4          void print_time(Date *dat)
+   5          {
+   6   1              send_u8_decimal(dat->year - 2000);
+   7   1              send_string("/");
+   8   1              send_u8_decimal(dat->mon);
+   9   1              send_string("/");
+  10   1              send_u8_decimal(dat->day);
+  11   1              send_string("/");
+  12   1              
+  13   1              send_u8_decimal(dat->hour);
+  14   1              send_string("/");
+  15   1              send_u8_decimal(dat->min);
+  16   1              send_string("/");
+  17   1              send_u8_decimal(dat->sec);
+  18   1              send_string("/");
+  19   1              
+  20   1              send_u8_decimal(dat->week);
+  21   1              send_string(" \r\n");
+  22   1      }
+  23          
+  24          void prog(void)
+  25          {
+  26   1          u8 i = 0;
+  27   1              Date dat;
+  28   1              u8 year, mon, day, hour, min, sec, week;
+  29   1              
+  30   1      #ifdef IAP15W413AS_TEST
+  31   1              ds3231_get_date(&year, &mon, &day, &hour, &min, &sec, &week);
+  32   1              dat.year = year + 2000;
+  33   1              dat.mon = mon;
+  34   1              dat.day = day;
+  35   1              dat.hour = hour;
+  36   1              dat.min = min;
+  37   1              dat.sec = sec;
+  38   1              dat.week = week;
+  39   1              print_time(&dat);
+  40   1              bpc_enable();
+  41   1              while (1) {
+  42   2                      if (get_bpc(&dat) == OK) {
+  43   3                              led_red_enable();
+  44   3                              print_time(&dat);
+  45   3                              year = dat.year - 2000;
+  46   3                              mon = dat.mon;
+  47   3                              day = dat.day;
+  48   3                              hour = dat.hour;
+  49   3                              min = dat.min;
+  50   3                              sec = dat.sec;
+  51   3                              week = dat.week;
+  52   3                              ds3231_set_date(year, mon, day, hour, min, sec, week);
+  53   3                      }
+  54   2                      delay_s(5);
+C51 COMPILER V9.60.0.0   MAIN                                                              07/05/2019 17:37:13 PAGE 2   
+
+  55   2                      led_red_disable();
+  56   2              }
+  57   1              // bpc_disable();
+  58   1      #else
+                      while (1) {
+                              delay_s(1);
+                              if (i > 200) i = 1;
+                              send_u8_decimal(i);
+                              send_string(" \r\n");
+                              i++;
+                      }
+              #endif
+  67   1      }
+  68          
+  69          int main(void)
+  70          {
+  71   1              iap15w413as_config();
+  72   1      
+  73   1              send_string("IAP15W413AS DS3231SN Test. \r\n");
+  74   1          
+  75   1          prog();
+  76   1          
+  77   1          return 0;
+  78   1      }
+
+
+MODULE INFORMATION:   STATIC OVERLAYABLE
+   CODE SIZE        =    585    ----
+   CONSTANT SIZE    =     36    ----
+   XDATA SIZE       =   ----      29
+   PDATA SIZE       =   ----    ----
+   DATA SIZE        =   ----    ----
+   IDATA SIZE       =   ----    ----
+   BIT SIZE         =   ----    ----
+END OF MODULE INFORMATION.
+
+
+C51 COMPILATION COMPLETE.  0 WARNING(S),  0 ERROR(S)

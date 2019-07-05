@@ -50,6 +50,7 @@ int update_time(void)
 	
 	if (return_code == OK) {
 		ds3231_set_date(year, mon, day, hour, min, sec, week + 1);
+		ds1302_set_date(year, mon, day, hour, min, sec, week + 1);
 		return OK;
 	}
 	

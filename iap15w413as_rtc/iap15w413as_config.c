@@ -41,4 +41,5 @@ void iap15w413as_config(void)
 	ISRENABLE();
 	
 	ds3231_init();
+	ds1302_init();
 }

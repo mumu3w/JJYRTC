@@ -1,4 +1,4 @@
-C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/25/2019 17:18:03 PAGE 1   
+C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/26/2019 19:21:01 PAGE 1   
 
 
 C51 COMPILER V9.60.0.0, COMPILATION OF MODULE JJY2DATE
@@ -62,7 +62,7 @@ line level    source
   52   1          u16 T;
   53   1          u8 i = 0;
   54   1      
-C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/25/2019 17:18:03 PAGE 2   
+C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/26/2019 19:21:01 PAGE 2   
 
   55   1          while (i < 100) {
   56   2              if (JJYstatus == 1) {
@@ -126,7 +126,7 @@ line level    source
  114   1          if (i % 2 != pa2) return ERR;
  115   1      
  116   1          i = 0;
-C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/25/2019 17:18:03 PAGE 3   
+C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/26/2019 19:21:01 PAGE 3   
 
  117   1          if (jjycoding[12] == 1) i++;
  118   1          if (jjycoding[13] == 1) i++;
@@ -190,7 +190,7 @@ line level    source
  175   1          jjyd->timestamp -= (60 * 60);   // UTC+8 (JJY UTC+9)
  176   1          to_date(jjyd);
  177   1          to_week(jjyd);
-C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/25/2019 17:18:03 PAGE 4   
+C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/26/2019 19:21:01 PAGE 4   
 
  178   1      
  179   1          return OK;
@@ -254,7 +254,7 @@ line level    source
  237   2              j++;
  238   2          }
  239   1      
-C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/25/2019 17:18:03 PAGE 5   
+C51 COMPILER V9.60.0.0   JJY2DATE                                                          06/26/2019 19:21:01 PAGE 5   
 
  240   1          if (jjy2date(jjyd, jjycoding)) return ERR;
  241   1          return OK;
